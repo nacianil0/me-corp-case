@@ -28,4 +28,3 @@ public class RegisterViewModel
 
     public bool HasReferralCode => !string.IsNullOrWhiteSpace(ReferralCode);
 }
-

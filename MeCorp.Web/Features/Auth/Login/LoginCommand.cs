@@ -21,27 +21,27 @@ public class LoginCommand : IRequest<LoginResult>
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IHashingService _hashingService;
-        private readonly ICaptchaService _captchaService;
+        private readonly IHCaptchaService _hCaptchaService;
         private readonly ILogger<Handler> _logger;
 
         public Handler(
             ApplicationDbContext dbContext,
             IHashingService hashingService,
-            ICaptchaService captchaService,
+            IHCaptchaService hCaptchaService,
             ILogger<Handler> logger)
         {
             _dbContext = dbContext;
             _hashingService = hashingService;
-            _captchaService = captchaService;
+            _hCaptchaService = hCaptchaService;
             _logger = logger;
         }
 
         public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            bool captchaValid = await _captchaService.VerifyTokenAsync(request.CaptchaToken, request.IpAddress);
+            bool captchaValid = await _hCaptchaService.VerifyTokenAsync(request.CaptchaToken, request.IpAddress);
             if (!captchaValid)
             {
-                _logger.LogWarning("CAPTCHA validation failed for IP: {IpAddress}", request.IpAddress);
+                _logger.LogWarning("hCaptcha validation failed for IP: {IpAddress}", request.IpAddress);
                 return LoginResult.CaptchaFailed();
             }
 

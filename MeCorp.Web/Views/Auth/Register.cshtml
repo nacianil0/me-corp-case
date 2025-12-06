@@ -46,7 +46,13 @@
                 <span asp-validation-for="ConfirmPassword" class="validation-message"></span>
             </div>
 
+            @if (ViewBag.HCaptchaEnabled == true)
+            {
+                <div class="form-group">
+                    <div class="h-captcha" data-sitekey="@ViewBag.HCaptchaSiteKey"></div>
             <input type="hidden" asp-for="CaptchaToken" id="captchaToken" />
+                </div>
+            }
 
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
@@ -57,71 +63,16 @@
     </div>
 </div>
 
-@section Scripts {
-    @if (ViewBag.HasValidCaptcha == true)
+@if (ViewBag.HCaptchaEnabled == true)
     {
-        <script src="https://www.google.com/recaptcha/api.js?render=@ViewBag.SiteKey"></script>
-        <script>
-            (function() {
-                var form = document.getElementById('registerForm');
-                var captchaTokenInput = document.getElementById('captchaToken');
-                var siteKey = '@ViewBag.SiteKey';
-                
-                function waitForRecaptcha(callback, maxAttempts) {
-                    maxAttempts = maxAttempts || 50;
-                    var attempts = 0;
-                    
-                    function check() {
-                        attempts++;
-                        if (typeof grecaptcha !== 'undefined' && grecaptcha.ready) {
-                            console.log('reCAPTCHA loaded successfully');
-                            callback();
-                        } else if (attempts < maxAttempts) {
-                            setTimeout(check, 100);
-                        } else {
-                            console.error('reCAPTCHA failed to load after ' + maxAttempts + ' attempts');
-                            alert('reCAPTCHA failed to load. Please refresh the page.');
-                        }
-                    }
-                    check();
-                }
-                
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    console.log('Form submitted, generating reCAPTCHA token...');
-                    
-                    waitForRecaptcha(function() {
-                        grecaptcha.ready(function() {
-                            console.log('reCAPTCHA ready, executing...');
-                            grecaptcha.execute(siteKey, {action: 'register'})
-                                .then(function(token) {
-                                    console.log('reCAPTCHA token generated:', token ? 'Success' : 'Failed');
-                                    if (token) {
-                                        captchaTokenInput.value = token;
-                                        console.log('Submitting form with token...');
-                                        form.submit();
-                                    } else {
-                                        console.error('reCAPTCHA token generation returned empty');
-                                        alert('reCAPTCHA verification failed. Please try again.');
-                                    }
-                                })
-                                .catch(function(error) {
-                                    console.error('reCAPTCHA error:', error);
-                                    alert('reCAPTCHA verification failed: ' + (error.message || 'Unknown error'));
-                                });
-                        });
-                    });
-                });
-            })();
-        </script>
-    }
-    else
-    {
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
         <script>
             document.getElementById('registerForm').addEventListener('submit', function(e) {
-                document.getElementById('captchaToken').value = 'dev-bypass';
+            var response = document.querySelector('[name="h-captcha-response"]');
+            if (response) {
+                document.getElementById('captchaToken').value = response.value;
+            }
             });
         </script>
-    }
 }
 

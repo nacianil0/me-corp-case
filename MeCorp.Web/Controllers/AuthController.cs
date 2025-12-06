@@ -27,14 +27,8 @@ public class AuthController : Controller
             return RedirectToAction("Index", "Dashboard");
         }
 
-        bool captchaEnabled = _configuration.GetValue<bool>("ReCaptcha:Enabled", true);
-        string? siteKey = _configuration["ReCaptcha:SiteKey"];
         ViewBag.ReturnUrl = returnUrl;
-        ViewBag.SiteKey = siteKey;
-        ViewBag.HasValidCaptcha = captchaEnabled && 
-                                   !string.IsNullOrWhiteSpace(siteKey) && 
-                                   siteKey != "your-site-key" && 
-                                   siteKey != "your-recaptcha-site-key-here";
+        SetHCaptchaViewBag();
         return View(new LoginViewModel());
     }
 
@@ -42,14 +36,8 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
-        bool captchaEnabled = _configuration.GetValue<bool>("ReCaptcha:Enabled", true);
-        string? siteKey = _configuration["ReCaptcha:SiteKey"];
         ViewBag.ReturnUrl = returnUrl;
-        ViewBag.SiteKey = siteKey;
-        ViewBag.HasValidCaptcha = captchaEnabled && 
-                                   !string.IsNullOrWhiteSpace(siteKey) && 
-                                   siteKey != "your-site-key" && 
-                                   siteKey != "your-recaptcha-site-key-here";
+        SetHCaptchaViewBag();
 
         if (!ModelState.IsValid)
         {
@@ -91,13 +79,7 @@ public class AuthController : Controller
             return RedirectToAction("Index", "Dashboard");
         }
 
-        bool captchaEnabled = _configuration.GetValue<bool>("ReCaptcha:Enabled", true);
-        string? siteKey = _configuration["ReCaptcha:SiteKey"];
-        ViewBag.SiteKey = siteKey;
-        ViewBag.HasValidCaptcha = captchaEnabled && 
-                                   !string.IsNullOrWhiteSpace(siteKey) && 
-                                   siteKey != "your-site-key" && 
-                                   siteKey != "your-recaptcha-site-key-here";
+        SetHCaptchaViewBag();
         return View(new RegisterViewModel { ReferralCode = @ref });
     }
 
@@ -105,13 +87,7 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
-        bool captchaEnabled = _configuration.GetValue<bool>("ReCaptcha:Enabled", true);
-        string? siteKey = _configuration["ReCaptcha:SiteKey"];
-        ViewBag.SiteKey = siteKey;
-        ViewBag.HasValidCaptcha = captchaEnabled && 
-                                   !string.IsNullOrWhiteSpace(siteKey) && 
-                                   siteKey != "your-site-key" && 
-                                   siteKey != "your-recaptcha-site-key-here";
+        SetHCaptchaViewBag();
 
         if (!ModelState.IsValid)
         {
@@ -140,6 +116,14 @@ public class AuthController : Controller
 
         TempData["SuccessMessage"] = "Registration successful. Please log in.";
         return RedirectToAction(nameof(Login));
+    }
+
+    private void SetHCaptchaViewBag()
+    {
+        bool captchaEnabled = _configuration.GetValue<bool>("HCaptcha:Enabled", true);
+        string? siteKey = _configuration["HCaptcha:SiteKey"];
+        ViewBag.HCaptchaSiteKey = siteKey;
+        ViewBag.HCaptchaEnabled = captchaEnabled && !string.IsNullOrWhiteSpace(siteKey);
     }
 
     [HttpPost]

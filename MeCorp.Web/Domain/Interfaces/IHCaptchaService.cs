@@ -1,6 +1,6 @@
 namespace MeCorp.Web.Domain.Interfaces;
 
-public interface ICaptchaService
+public interface IHCaptchaService
 {
     Task<bool> VerifyTokenAsync(string token, string remoteIp);
 }

@@ -21,4 +21,3 @@ public class LoginViewModel
 
     public bool IsBlocked { get; set; }
 }
-

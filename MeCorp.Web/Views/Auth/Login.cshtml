@@ -34,7 +34,13 @@
                 <span asp-validation-for="Password" class="validation-message"></span>
             </div>
 
+            @if (ViewBag.HCaptchaEnabled == true)
+            {
+                <div class="form-group">
+                    <div class="h-captcha" data-sitekey="@ViewBag.HCaptchaSiteKey"></div>
             <input type="hidden" asp-for="CaptchaToken" id="captchaToken" />
+                </div>
+            }
 
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
@@ -45,29 +51,16 @@
     </div>
 </div>
 
-@section Scripts {
-    @if (ViewBag.HasValidCaptcha == true)
+@if (ViewBag.HCaptchaEnabled == true)
     {
-        <script src="https://www.google.com/recaptcha/api.js?render=@ViewBag.SiteKey"></script>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
         <script>
             document.getElementById('loginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                grecaptcha.ready(function() {
-                    grecaptcha.execute('@ViewBag.SiteKey', {action: 'login'}).then(function(token) {
-                        document.getElementById('captchaToken').value = token;
-                        document.getElementById('loginForm').submit();
-                    });
-                });
+            var response = document.querySelector('[name="h-captcha-response"]');
+            if (response) {
+                document.getElementById('captchaToken').value = response.value;
+            }
             });
         </script>
-    }
-    else
-    {
-        <script>
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-                document.getElementById('captchaToken').value = 'dev-bypass';
-            });
-        </script>
-    }
 }
 

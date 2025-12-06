@@ -48,7 +48,7 @@ builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 builder.Services.AddScoped<IHashingService, HashingService>();
-builder.Services.AddHttpClient<ICaptchaService, CaptchaService>();
+builder.Services.AddHttpClient<IHCaptchaService, HCaptchaService>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -66,10 +66,10 @@ app.Use(async (context, next) =>
 {
     context.Response.Headers.Append("Content-Security-Policy",
         "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "frame-src 'self' https://www.google.com; " +
-        "connect-src 'self' https://www.google.com https://www.recaptcha.net; " +
+        "script-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
+        "style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
+        "frame-src 'self' https://hcaptcha.com https://*.hcaptcha.com; " +
+        "connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com; " +
         "img-src 'self' data: https:; " +
         "font-src 'self' data:;");
     await next();
