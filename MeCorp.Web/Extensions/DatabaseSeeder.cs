@@ -30,36 +30,59 @@ public static class DatabaseSeeder
         IHashingService hashingService,
         ILogger logger)
     {
+        bool hasChanges = false;
+
         foreach (var (email, (password, role, referralCode)) in SeedUsers)
         {
             var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
             if (existingUser is null)
             {
+                string newHash = hashingService.HashPassword(password);
                 var newUser = new User
                 {
                     Email = email,
-                    PasswordHash = hashingService.HashPassword(password),
+                    PasswordHash = newHash,
                     Role = role,
                     ReferralCode = referralCode,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 context.Users.Add(newUser);
+                hasChanges = true;
                 logger.LogInformation("Seed user created: {Email}", email);
             }
             else
             {
-                bool passwordValid = hashingService.VerifyPassword(password, existingUser.PasswordHash);
+                bool passwordValid = false;
+                try
+                {
+                    passwordValid = hashingService.VerifyPassword(password, existingUser.PasswordHash);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Password verification failed for {Email}, will update hash", email);
+                }
 
+                // Only update if the password hash is invalid
                 if (!passwordValid)
                 {
-                    existingUser.PasswordHash = hashingService.HashPassword(password);
+                    string newHash = hashingService.HashPassword(password);
+                    existingUser.PasswordHash = newHash;
+                    hasChanges = true;
                     logger.LogInformation("Seed user password hash updated: {Email}", email);
+                }
+                else
+                {
+                    logger.LogInformation("Seed user password hash is valid: {Email}", email);
                 }
             }
         }
 
-        await context.SaveChangesAsync();
+        if (hasChanges)
+        {
+            await context.SaveChangesAsync();
+            logger.LogInformation("Seed data saved successfully");
+        }
     }
 }
