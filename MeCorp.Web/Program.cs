@@ -61,6 +61,20 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("Content-Security-Policy",
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "frame-src 'self' https://www.google.com; " +
+        "connect-src 'self' https://www.google.com https://www.recaptcha.net; " +
+        "img-src 'self' data: https:; " +
+        "font-src 'self' data:;");
+    await next();
+});
+
 app.UseRouting();
 
 app.UseIpRateLimiting();

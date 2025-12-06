@@ -87,6 +87,7 @@ body {
 
 .form-group { margin-bottom: 16px; }
 .form-label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.875rem; }
+.optional-text { color: var(--text-secondary); font-weight: normal; font-size: 0.75rem; }
 .form-input {
     width: 100%;
     height: 44px;

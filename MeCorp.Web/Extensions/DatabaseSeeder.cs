@@ -8,47 +8,58 @@ namespace MeCorp.Web.Extensions;
 
 public static class DatabaseSeeder
 {
+    private static readonly Dictionary<string, (string Password, UserRole Role, string ReferralCode)> SeedUsers = new()
+    {
+        ["admin@mecorp.com"] = ("Admin123!", UserRole.Admin, "ADMIN2026SEED"),
+        ["manager@mecorp.com"] = ("Manager123!", UserRole.Manager, "MGR2026SEED01"),
+        ["customer@mecorp.com"] = ("Customer123!", UserRole.Customer, "CUST2026SEED")
+    };
+
     public static async Task SeedDataAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var hashingService = scope.ServiceProvider.GetRequiredService<IHashingService>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
 
-        if (await context.Users.AnyAsync())
+        await EnsureSeedUsersAsync(context, hashingService, logger);
+    }
+
+    private static async Task EnsureSeedUsersAsync(
+        ApplicationDbContext context,
+        IHashingService hashingService,
+        ILogger logger)
+    {
+        foreach (var (email, (password, role, referralCode)) in SeedUsers)
         {
-            return;
+            var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (existingUser is null)
+            {
+                var newUser = new User
+                {
+                    Email = email,
+                    PasswordHash = hashingService.HashPassword(password),
+                    Role = role,
+                    ReferralCode = referralCode,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.Users.Add(newUser);
+                logger.LogInformation("Seed user created: {Email}", email);
+            }
+            else
+            {
+                bool passwordValid = hashingService.VerifyPassword(password, existingUser.PasswordHash);
+
+                if (!passwordValid)
+                {
+                    existingUser.PasswordHash = hashingService.HashPassword(password);
+                    logger.LogInformation("Seed user password hash updated: {Email}", email);
+                }
+            }
         }
 
-        var users = new List<User>
-        {
-            new User
-            {
-                Email = "admin@mecorp.com",
-                PasswordHash = hashingService.HashPassword("Admin123!"),
-                Role = UserRole.Admin,
-                ReferralCode = "ADMIN2026SEED",
-                CreatedAt = DateTime.UtcNow
-            },
-            new User
-            {
-                Email = "manager@mecorp.com",
-                PasswordHash = hashingService.HashPassword("Manager123!"),
-                Role = UserRole.Manager,
-                ReferralCode = "MGR2026SEED01",
-                CreatedAt = DateTime.UtcNow
-            },
-            new User
-            {
-                Email = "customer@mecorp.com",
-                PasswordHash = hashingService.HashPassword("Customer123!"),
-                Role = UserRole.Customer,
-                ReferralCode = "CUST2026SEED",
-                CreatedAt = DateTime.UtcNow
-            }
-        };
-
-        context.Users.AddRange(users);
         await context.SaveChangesAsync();
     }
 }
-
