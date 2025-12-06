@@ -69,7 +69,10 @@ public class RegisterCommand : IRequest<RegisterResult>
                     return RegisterResult.InvalidReferralCode();
                 }
 
-                role = UserRole.Manager;
+                if (referrer.Role == UserRole.Manager || referrer.Role == UserRole.Admin)
+                {
+                    role = UserRole.Manager;
+                }
             }
 
             string newReferralCode = GenerateReferralCode();
