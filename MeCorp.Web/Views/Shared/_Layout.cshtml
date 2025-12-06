@@ -1,0 +1,41 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    <title>@ViewData["Title"] - MeCorp</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">MeCorp</a>
+            <nav class="navbar-nav">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="navbar-user">@User.Identity.Name</span>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="navbar-form">
+                        <button type="submit" class="btn-logout">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a href="/Auth/Login" class="navbar-link">Login</a>
+                    <a href="/Auth/Register" class="navbar-link">Register</a>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

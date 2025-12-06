@@ -1,0 +1,73 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Login</h1>
+
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="message message-success">@successMessage</div>
+        }
+
+        <div class="error-container">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="message @(Model.IsBlocked ? "message-blocked" : "message-error")">
+                    @Model.ErrorMessage
+                </div>
+            }
+        </div>
+
+        <form asp-action="Login" method="post" id="loginForm">
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-input" required />
+                <span asp-validation-for="Email" class="validation-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-input" required />
+                <span asp-validation-for="Password" class="validation-message"></span>
+            </div>
+
+            <input type="hidden" asp-for="CaptchaToken" id="captchaToken" />
+
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        <p class="auth-link">
+            Don't have an account? <a href="/Auth/Register">Register</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    @if (ViewBag.HasValidCaptcha == true)
+    {
+        <script src="https://www.google.com/recaptcha/api.js?render=@ViewBag.SiteKey"></script>
+        <script>
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('@ViewBag.SiteKey', {action: 'login'}).then(function(token) {
+                        document.getElementById('captchaToken').value = token;
+                        document.getElementById('loginForm').submit();
+                    });
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <script>
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                document.getElementById('captchaToken').value = 'dev-bypass';
+            });
+        </script>
+    }
+}
+
