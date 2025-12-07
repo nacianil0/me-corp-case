@@ -10,7 +10,7 @@ Referral platform with role-based access control.
 ### 1. Database (SQL Server via Docker)
 
 ```bash
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongPassword123!" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Pass!" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
 ### 2. Build & Run
@@ -21,7 +21,7 @@ dotnet build
 dotnet run
 ```
 
-Application runs at `http://localhost:5000` or `https://localhost:5001`
+Application runs at `http://localhost:5000` or `https://localhost:5153`
 
 ## Test Accounts
 
