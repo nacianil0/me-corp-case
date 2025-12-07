@@ -43,7 +43,13 @@ public class DashboardController : Controller
             CreatedAt = result.CreatedAt,
             TotalUsers = result.TotalUsers,
             CustomerCount = result.CustomerCount,
-            ManagerCount = result.ManagerCount
+            ManagerCount = result.ManagerCount,
+            Referrals = result.Referrals.Select(r => new ReferralViewModel
+            {
+                Email = r.Email,
+                Role = r.Role,
+                JoinedAt = r.JoinedAt
+            }).ToList()
         };
 
         return View(viewModel);

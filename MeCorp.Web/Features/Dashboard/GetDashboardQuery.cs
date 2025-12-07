@@ -30,13 +30,25 @@ public class GetDashboardQuery : IRequest<DashboardResult>
                 return DashboardResult.NotFound();
             }
 
+            var referrals = await _dbContext.Users
+                .Where(u => u.Referrer != null && u.Referrer.Id == request.UserId)
+                .OrderByDescending(u => u.CreatedAt)
+                .Select(u => new ReferralDto
+                {
+                    Email = u.Email,
+                    Role = u.Role,
+                    JoinedAt = u.CreatedAt
+                })
+                .ToListAsync(cancellationToken);
+
             var result = new DashboardResult
             {
                 IsSuccess = true,
                 Email = user.Email,
                 Role = user.Role,
                 ReferralCode = user.ReferralCode,
-                CreatedAt = user.CreatedAt
+                CreatedAt = user.CreatedAt,
+                Referrals = referrals
             };
 
             if (user.Role == UserRole.Admin)
@@ -51,6 +63,13 @@ public class GetDashboardQuery : IRequest<DashboardResult>
     }
 }
 
+public class ReferralDto
+{
+    public required string Email { get; init; }
+    public UserRole Role { get; init; }
+    public DateTime JoinedAt { get; init; }
+}
+
 public class DashboardResult
 {
     public bool IsSuccess { get; set; }
@@ -62,6 +81,7 @@ public class DashboardResult
     public int? TotalUsers { get; set; }
     public int? CustomerCount { get; set; }
     public int? ManagerCount { get; set; }
+    public List<ReferralDto> Referrals { get; set; } = new();
 
     public static DashboardResult NotFound() => new()
     {

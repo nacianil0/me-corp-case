@@ -11,9 +11,18 @@ public class DashboardViewModel
     public int? TotalUsers { get; init; }
     public int? CustomerCount { get; init; }
     public int? ManagerCount { get; init; }
+    public List<ReferralViewModel> Referrals { get; init; } = new();
 
     public bool IsAdmin => Role == UserRole.Admin;
+    public bool HasReferrals => Referrals.Count > 0;
 
     public string ReferralLink => $"/Auth/Register?ref={ReferralCode}";
+}
+
+public class ReferralViewModel
+{
+    public required string Email { get; init; }
+    public required UserRole Role { get; init; }
+    public required DateTime JoinedAt { get; init; }
 }
 

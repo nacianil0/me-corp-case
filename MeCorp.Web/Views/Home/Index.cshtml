@@ -1,8 +1,24 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+  ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="home-container">
+    <div class="home-content">
+        <h1 class="home-title">MeCorp</h1>
+        <p class="home-description">
+            A simple platform for managing your account and connecting with others through referrals. 
+            Sign up to get started or log in to access your dashboard.
+        </p>
+        <div class="home-actions">
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <a href="/Auth/Register" class="btn btn-primary">Get Started</a>
+                <a href="/Auth/Login" class="btn btn-secondary">Sign In</a>
+            }
+            else
+            {
+                <a href="/Dashboard" class="btn btn-primary">Go to Dashboard</a>
+            }
+        </div>
+    </div>
 </div>

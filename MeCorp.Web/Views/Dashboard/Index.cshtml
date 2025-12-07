@@ -8,59 +8,96 @@
 
     @if (Model.IsAdmin)
     {
-        <div class="dashboard-card">
+        <div class="dashboard-card dashboard-card-full">
             <h2 class="card-title">User Statistics</h2>
-            <table class="stats-table">
-                <thead>
-                    <tr>
-                        <th>Metric</th>
-                        <th>Count</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Total Users</td>
-                        <td>@Model.TotalUsers</td>
-                    </tr>
-                    <tr>
-                        <td>Customers</td>
-                        <td>@Model.CustomerCount</td>
-                    </tr>
-                    <tr>
-                        <td>Managers</td>
-                        <td>@Model.ManagerCount</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-value">@Model.TotalUsers</span>
+                    <span class="stat-label">Total Users</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">@Model.CustomerCount</span>
+                    <span class="stat-label">Customers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">@Model.ManagerCount</span>
+                    <span class="stat-label">Managers</span>
+                </div>
+            </div>
         </div>
     }
 
-    <div class="dashboard-card">
-        <h2 class="card-title">Your Profile</h2>
-        <div class="profile-info">
-            <div class="profile-row">
-                <span class="profile-label">Email:</span>
-                <span class="profile-value">@Model.Email</span>
+    <div class="dashboard-grid">
+        <div class="dashboard-col-left">
+            <div class="dashboard-card">
+                <h2 class="card-title">Your Profile</h2>
+                <div class="profile-info">
+                    <div class="profile-row">
+                        <span class="profile-label">Email:</span>
+                        <span class="profile-value">@Model.Email</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Role:</span>
+                        <span class="profile-value role-badge role-@Model.Role.ToString().ToLower()">@Model.Role</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="profile-label">Member Since:</span>
+                        <span class="profile-value">@Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                    </div>
+                </div>
             </div>
-            <div class="profile-row">
-                <span class="profile-label">Role:</span>
-                <span class="profile-value role-badge role-@Model.Role.ToString().ToLower()">@Model.Role</span>
-            </div>
-            <div class="profile-row">
-                <span class="profile-label">Member Since:</span>
-                <span class="profile-value">@Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
-            </div>
-        </div>
-    </div>
 
-    <div class="dashboard-card">
-        <h2 class="card-title">Your Referral Link</h2>
-        <div class="referral-section">
-            <input type="text" id="referralLink" class="form-input referral-input" 
-                   value="@Context.Request.Scheme://@Context.Request.Host@Model.ReferralLink" readonly />
-            <button type="button" id="copyBtn" class="btn btn-secondary" onclick="copyReferralLink()">Copy</button>
+            <div class="dashboard-card">
+                <h2 class="card-title">Your Referral Link</h2>
+                <div class="referral-section">
+                    <input type="text" id="referralLink" class="form-input referral-input" 
+                           value="@Context.Request.Scheme://@Context.Request.Host@Model.ReferralLink" readonly />
+                    <button type="button" id="copyBtn" class="btn btn-secondary" onclick="copyReferralLink()">Copy</button>
+                </div>
+                <p class="referral-note">Share this link to invite others. They will register as Managers.</p>
+            </div>
         </div>
-        <p class="referral-note">Share this link to invite others. They will register as Managers.</p>
+
+        <div class="dashboard-col-right">
+            <div class="dashboard-card dashboard-card-stretch">
+                <div class="referrals-header">
+                    <h2 class="card-title">Your Referrals</h2>
+                    <span class="referrals-count">@Model.Referrals.Count</span>
+                </div>
+                @if (Model.HasReferrals)
+                {
+                    <div class="referrals-table-wrapper">
+                        <table class="referrals-table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var referral in Model.Referrals)
+                                {
+                                    <tr>
+                                        <td>@referral.Email</td>
+                                        <td>
+                                            <span class="role-badge role-@referral.Role.ToString().ToLower()">@referral.Role</span>
+                                        </td>
+                                        <td class="date-cell">@referral.JoinedAt.ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <p>No referrals yet. Share your link to start inviting others!</p>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </div>
 
