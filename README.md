@@ -2,7 +2,7 @@
 
 Referral platform with role-based access control.
 
-<img width="3420" height="1828" alt="screencapture-localhost-5153-Dashboard-2025-12-07-17_01_41" src="https://github.com/user-attachments/assets/099fd94c-d3db-4a08-8d98-49529013fe5e" />
+![Uploading screencapture-localhost-5153-Dashboard-2025-12-07-18_39_30.png…]()
 
 
 ## Quick Setup
