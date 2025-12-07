@@ -21,7 +21,7 @@ dotnet build
 dotnet run
 ```
 
-Application runs at `http://localhost:5000` or `https://localhost:5001`
+Application runs at `http://localhost:5000` or `https://localhost:5153`
 
 ## Test Accounts
 
