@@ -49,6 +49,20 @@ public class DashboardController : Controller
                 Email = r.Email,
                 Role = r.Role,
                 JoinedAt = r.JoinedAt
+            }).ToList(),
+            AllUsersWithReferrals = result.AllUsersWithReferrals.Select(u => new UserWithReferralsViewModel
+            {
+                Id = u.Id,
+                Email = u.Email,
+                Role = u.Role,
+                CreatedAt = u.CreatedAt,
+                ReferralCount = u.ReferralCount,
+                Referrals = u.Referrals.Select(r => new ReferralViewModel
+                {
+                    Email = r.Email,
+                    Role = r.Role,
+                    JoinedAt = r.JoinedAt
+                }).ToList()
             }).ToList()
         };
 

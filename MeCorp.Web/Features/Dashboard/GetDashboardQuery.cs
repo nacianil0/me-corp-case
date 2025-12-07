@@ -56,6 +56,28 @@ public class GetDashboardQuery : IRequest<DashboardResult>
                 result.TotalUsers = await _dbContext.Users.CountAsync(cancellationToken);
                 result.CustomerCount = await _dbContext.Users.CountAsync(u => u.Role == UserRole.Customer, cancellationToken);
                 result.ManagerCount = await _dbContext.Users.CountAsync(u => u.Role == UserRole.Manager, cancellationToken);
+                
+                result.AllUsersWithReferrals = await _dbContext.Users
+                    .OrderByDescending(u => u.Referrals.Count)
+                    .ThenByDescending(u => u.CreatedAt)
+                    .Select(u => new UserWithReferralsDto
+                    {
+                        Id = u.Id,
+                        Email = u.Email,
+                        Role = u.Role,
+                        CreatedAt = u.CreatedAt,
+                        ReferralCount = u.Referrals.Count,
+                        Referrals = u.Referrals
+                            .OrderByDescending(r => r.CreatedAt)
+                            .Select(r => new ReferralDto
+                            {
+                                Email = r.Email,
+                                Role = r.Role,
+                                JoinedAt = r.CreatedAt
+                            })
+                            .ToList()
+                    })
+                    .ToListAsync(cancellationToken);
             }
 
             return result;
@@ -70,6 +92,16 @@ public class ReferralDto
     public DateTime JoinedAt { get; init; }
 }
 
+public class UserWithReferralsDto
+{
+    public int Id { get; init; }
+    public required string Email { get; init; }
+    public UserRole Role { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public int ReferralCount { get; init; }
+    public List<ReferralDto> Referrals { get; init; } = new();
+}
+
 public class DashboardResult
 {
     public bool IsSuccess { get; set; }
@@ -82,6 +114,7 @@ public class DashboardResult
     public int? CustomerCount { get; set; }
     public int? ManagerCount { get; set; }
     public List<ReferralDto> Referrals { get; set; } = new();
+    public List<UserWithReferralsDto> AllUsersWithReferrals { get; set; } = new();
 
     public static DashboardResult NotFound() => new()
     {

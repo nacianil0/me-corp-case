@@ -25,6 +25,71 @@
                 </div>
             </div>
         </div>
+
+        <div class="dashboard-card dashboard-card-full">
+            <h2 class="card-title">All Users & Referrals</h2>
+            <div class="users-table-wrapper">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th class="expand-col"></th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th class="referral-count-col">Referrals</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.AllUsersWithReferrals)
+                        {
+                            var hasReferrals = user.ReferralCount > 0;
+                            <tr class="user-row @(hasReferrals ? "expandable" : "")" data-user-id="@user.Id" @(hasReferrals ? "onclick=toggleReferrals(this)" : "")>
+                                <td class="expand-col">
+                                    @if (hasReferrals)
+                                    {
+                                        <span class="expand-icon">▸</span>
+                                    }
+                                </td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <span class="role-badge role-@user.Role.ToString().ToLower()">@user.Role</span>
+                                </td>
+                                <td class="date-cell">@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="referral-count-col">
+                                    @if (hasReferrals)
+                                    {
+                                        <span class="referrals-count">@user.ReferralCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-referrals">0</span>
+                                    }
+                                </td>
+                            </tr>
+                            @if (hasReferrals)
+                            {
+                                <tr class="referrals-row" data-parent-id="@user.Id">
+                                    <td colspan="5">
+                                        <div class="referrals-collapse">
+                                            <div class="referrals-list">
+                                                @foreach (var referral in user.Referrals)
+                                                {
+                                                    <div class="referral-item">
+                                                        <span class="referral-email">@referral.Email</span>
+                                                        <span class="role-badge role-@referral.Role.ToString().ToLower()">@referral.Role</span>
+                                                        <span class="referral-date">@referral.JoinedAt.ToString("MMM dd, yyyy")</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
 
     <div class="dashboard-grid">
@@ -112,6 +177,22 @@
                     btn.textContent = 'Copy';
                 }, 2000);
             });
+        }
+
+        function toggleReferrals(row) {
+            const userId = row.dataset.userId;
+            const referralsRow = document.querySelector(`.referrals-row[data-parent-id="${userId}"]`);
+            const expandIcon = row.querySelector('.expand-icon');
+            
+            if (referralsRow.classList.contains('expanded')) {
+                referralsRow.classList.remove('expanded');
+                expandIcon.textContent = '▸';
+                row.classList.remove('expanded');
+            } else {
+                referralsRow.classList.add('expanded');
+                expandIcon.textContent = '▾';
+                row.classList.add('expanded');
+            }
         }
     </script>
 }
